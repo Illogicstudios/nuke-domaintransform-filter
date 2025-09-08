@@ -43,6 +43,20 @@ This plugin implements a single node named `DTFilter`. There are a few parameter
 <img width="590" height="101" alt="image" src="https://github.com/user-attachments/assets/fe5bcb7e-d3f4-442b-82f6-b2a03bede3e0" />
 <img width="214" height="175" alt="image" src="https://github.com/user-attachments/assets/c0e9c98c-54ac-4143-9de6-c15ece69ab3a" />
 
+## Examples
+<p>
+  <img width="1294" height="700" alt="gardenparty_original" src="https://github.com/user-attachments/assets/e34f2360-e18f-427d-b43f-a61b64e560b0" />
+  [Original Image](https://www.illogicstudios.com/wp-content/uploads/2021/02/GardenParty_00029.jpg)
+</p>
+<p>
+  <img width="1294" height="700" alt="gardenparty_filtered1" src="https://github.com/user-attachments/assets/7c8b45f2-d8cd-4798-854e-ee6519868ac9" />
+  Filtered image: $\sigma_s=30$, $\sigma_r=0.4$, $iteration=3$
+</p>
+<p>
+   <img width="1294" height="700" alt="gardenparty_filtered2" src="https://github.com/user-attachments/assets/8be3728e-d58b-4075-baaa-b9f383daaaf9" />
+   Filtered image: $\sigma_s=15$, $\sigma_r=1$, $iteration=3$
+</p>
+
 ## Unix
 
 WIP
