@@ -346,8 +346,19 @@ public:
   DTFilterOp(Node* node)
     : Iop(node),
     sigma_s_(30.0f), sigma_r_(0.4f), iterations_(3),
-    has_rgb_(false), computed_(false), current_mode_(0)
-  {}
+    has_rgb_(false), computed_(false), current_mode_(0), enable_joint_(true)
+  {
+    inputs(2);
+  }
+
+  int minimum_inputs() const override { return 1; }
+  int maximum_inputs() const override { return 2; }
+
+  float uses_input(int i) const override {
+      if (i == 0) return 1.0f;
+      if (i == 1 && enable_joint_) return 1.0f;
+      return 0.0f;
+    }
 
   void knobs(Knob_Callback f) override {
     Float_knob(f, &sigma_s_, "Sigma_s");
@@ -358,6 +369,8 @@ public:
     Tooltip(f, "Number of recursive filtering iterations (default to 3).");
     Enumeration_knob(f, &current_mode_, pulldownKnobEntries, "Filter_mode");
     Tooltip(f, "Filter mode:\n - RF: Recursive Filter\n - NC: Normalized Convolution");
+    Bool_knob(f, &enable_joint_, "Joint_Filtering");
+    Tooltip(f, "Enable Joint Filtering (Joint is made based on RBG Channels)");
   }
   
   const char* Class() const override { return "DTFilter"; }
@@ -376,6 +389,9 @@ public:
   
   void _request(int x, int y, int r, int t, ChannelMask channels, int count) override {
     input0().request(x, y, r, t, channels, count);
+    if (input(1)) {
+      input1().request(x, y, r, t, channels, count);
+    }
     bx_ = x; by_ = y; br_ = r; bt_ = t;
     W_ = br_ - bx_; H_ = bt_ - by_;
   }
@@ -409,6 +425,17 @@ public:
       const float* R = row[Chan_Red]   + bx_;
       const float* G = row[Chan_Green] + bx_;
       const float* B = row[Chan_Blue]  + bx_;
+
+      const float* Rj = nullptr;
+      const float* Gj = nullptr;
+      const float* Bj = nullptr;
+      Row jointRow(bx_, br_);
+      if (input(1)) {
+        jointRow.get(input1(), y, bx_, br_, readChans);
+        Rj = jointRow[Chan_Red]   + bx_;
+        Gj = jointRow[Chan_Green] + bx_;
+        Bj = jointRow[Chan_Blue]  + bx_;
+      }
       
       for (int x = bx_; x < br_; ++x) {
         const int lx = x - bx_;
@@ -419,9 +446,15 @@ public:
         
         // joint == src (non‑guided).
         // TODO implement join filtering as stated in paper.
-        joint_[idx(lx, ly, 0, W_, H_, C)] = R[x];
-        joint_[idx(lx, ly, 1, W_, H_, C)] = G[x];
-        joint_[idx(lx, ly, 2, W_, H_, C)] = B[x];
+         if (input(1) && Rj && Gj && Bj) {
+          joint_[idx(lx, ly, 0, W_, H_, C)] = Rj[x];
+          joint_[idx(lx, ly, 1, W_, H_, C)] = Gj[x];
+          joint_[idx(lx, ly, 2, W_, H_, C)] = Bj[x];
+        } else {
+          joint_[idx(lx, ly, 0, W_, H_, C)] = R[x];
+          joint_[idx(lx, ly, 1, W_, H_, C)] = G[x];
+          joint_[idx(lx, ly, 2, W_, H_, C)] = B[x];
+        }
       }
     }
     
@@ -468,6 +501,7 @@ private:
   float sigma_r_;
   int   iterations_;
   int current_mode_;
+  bool enable_joint_;
 
   int bx_ = 0, by_ = 0, br_ = 0, bt_ = 0;
   int W_ = 0, H_ = 0;
