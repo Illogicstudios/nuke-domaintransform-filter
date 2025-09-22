@@ -33,6 +33,10 @@ cmake --build </path/to/build/dir> --config Release
 
 Once your `.dll` is built, you can just add it to your plugin path the way you want.
 
+## Unix
+
+WIP
+
 # How to use it
 
 This plugin implements a single node named `DTFilter`. There are a few parameters you can adjust:
@@ -56,7 +60,3 @@ This plugin implements a single node named `DTFilter`. There are a few parameter
    <img width="1294" height="700" alt="gardenparty_filtered2" src="https://github.com/user-attachments/assets/8be3728e-d58b-4075-baaa-b9f383daaaf9" />
    Filtered image: $\sigma_s=15$, $\sigma_r=1$, $iteration=3$
 </p>
-
-## Unix
-
-WIP
